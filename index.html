@@ -3,31 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منشئ الاختبارات الذكي | Bubble Sheet</title>
-    <!-- Tailwind CSS -->
+    <title>Bubble Exam | المصمم الذكي</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Tajawal', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
                     colors: {
-                        glass: "rgba(255, 255, 255, 0.1)",
-                        glassBorder: "rgba(255, 255, 255, 0.2)",
-                        glassText: "rgba(255, 255, 255, 0.9)",
-                        primary: "#8b5cf6", // Violet
-                        secondary: "#06b6d4", // Cyan
-                        accent: "#f472b6", // Pink
-                    },
-                    screens: {
-                        'xs': '480px', // Extra small breakpoint
+                        appBg: "#0f172a",
+                        surface: "#1e293b",
+                        primary: "#6366f1", // Indigo
+                        accent: "#ec4899", // Pink
+                        success: "#10b981",
+                        danger: "#ef4444",
                     }
                 }
             }
@@ -35,653 +27,494 @@
     </script>
 
     <style>
-        /* Base Setup */
+        /* Global Reset & Base */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: 'Tajawal', sans-serif;
-            background-color: #0f172a;
+            background-color: #020617; /* Very dark background for desktop */
             color: white;
-            overflow-x: hidden;
-            min-height: 100vh;
-            -webkit-tap-highlight-color: transparent; /* Remove highlight on tap for mobile */
-        }
-
-        /* Animated Background */
-        .bg-gradient-mesh {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
+            margin: 0;
             height: 100vh;
-            z-index: -1;
-            background: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
-            background-size: 200% 200%;
-            animation: gradientBG 15s ease infinite;
-        }
-
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: -1;
-            opacity: 0.6;
-            animation: float 10s infinite ease-in-out;
-        }
-        .orb-1 { width: 300px; height: 300px; background: #7c3aed; top: 10%; left: 20%; animation-delay: 0s; }
-        .orb-2 { width: 400px; height: 400px; background: #0891b2; bottom: 10%; right: 10%; animation-delay: -2s; }
-        .orb-3 { width: 200px; height: 200px; background: #db2777; top: 40%; left: 60%; animation-delay: -4s; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-30px) scale(1.1); }
-        }
-
-        /* Glassmorphism Classes */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            border-radius: 20px;
-        }
-
-        .glass-input {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            transition: all 0.3s ease;
-            font-size: 16px; /* Prevents iOS zoom on focus */
-        }
-        .glass-input:focus {
-            background: rgba(0, 0, 0, 0.4);
-            border-color: #8b5cf6;
-            outline: none;
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
-        }
-
-        .glass-btn {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.18);
-            box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37);
-            transition: all 0.3s ease;
-        }
-        .glass-btn:active {
-            transform: scale(0.95); /* Better touch feedback */
-        }
-
-        /* Bubble Styles */
-        .bubble-option {
-            width: 35px;
-            height: 35px;
-            min-width: 35px; /* Prevent shrinking on mobile */
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 100vw;
+            overflow: hidden; /* Prevent body scroll, handle inside app container */
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: bold;
-            font-size: 14px;
         }
-        .bubble-option.selected {
-            background: #8b5cf6;
-            border-color: #8b5cf6;
-            box-shadow: 0 0 15px #8b5cf6;
-            transform: scale(1.1);
+
+        /* The "Phone" Container */
+        #app-container {
+            width: 100%;
+            height: 100%;
+            background-color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 0 rgba(0,0,0,0);
         }
-        .bubble-option.correct-reveal { background: #10b981; border-color: #10b981; }
-        .bubble-option.wrong-reveal { background: #ef4444; border-color: #ef4444; }
+
+        /* Desktop View Adjustments */
+        @media (min-width: 640px) {
+            #app-container {
+                width: 420px; /* Mobile width simulator */
+                height: 85vh;
+                max-height: 900px;
+                border-radius: 30px;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            /* Fancy background for desktop */
+            body::before {
+                content: '';
+                position: absolute;
+                width: 150%;
+                height: 150%;
+                background: radial-gradient(circle at center, #1e1b4b 0%, #020617 70%);
+                z-index: -1;
+            }
+        }
+
+        /* Custom Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Inputs & Interactive Elements */
+        .input-box {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.3s;
+        }
+        .input-box:focus { border-color: #6366f1; background: rgba(30, 41, 59, 0.8); outline: none; }
+        
+        /* Bubble Selection */
+        .bubble-btn {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .bubble-btn.active { background: #6366f1; border-color: #6366f1; box-shadow: 0 0 10px rgba(99, 102, 241, 0.5); transform: scale(1.1); }
+        
+        /* Navigation Tabs */
+        .nav-tab { opacity: 0.5; transition: 0.3s; }
+        .nav-tab.active { opacity: 1; color: #6366f1; transform: translateY(-2px); }
+        .nav-tab.active::after {
+            content: ''; display: block; width: 6px; height: 6px;
+            background: #6366f1; border-radius: 50%;
+            margin: 4px auto 0;
+        }
 
         /* Animations */
-        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        .page-content { display: none; animation: fadeIn 0.3s ease-out; }
+        .page-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Mobile Adjustments */
-        @media (max-width: 640px) {
-            .glass-panel { padding: 1rem; } /* Smaller padding on mobile */
-            .bubble-option { width: 32px; height: 32px; min-width: 32px; font-size: 12px; }
-            h1 { font-size: 1.25rem; }
-            #sheet-paper { min-width: 600px; } /* Ensure paper keeps aspect ratio and scrolls */
-            .scroll-container { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 20px; }
-        }
-
-        /* Print Styles */
+        /* Print Override */
         @media print {
-            body { 
-                background: white !important; 
-                color: black !important; 
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important;
-                overflow: visible !important;
+            body, #app-container {
+                background: white !important;
+                color: black !important;
                 height: auto !important;
+                width: 100% !important;
+                display: block !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                border: none !important;
+                overflow: visible !important;
             }
-            .bg-gradient-mesh, .orb, #navbar, #question-editor, #stats-bar, .no-print { display: none !important; }
-            #main-content { margin: 0; padding: 0; width: 100%; max-width: none; }
-            #preview-mode { display: block !important; }
-            .scroll-container { overflow: visible !important; }
-            
-            /* Print Specific Bubble Sheet Styling */
-            .bubble-sheet-print {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-                width: 100%;
-                background: white;
-                color: black;
+            .no-print, #bottom-nav, #app-header, #editor-view, #test-view { display: none !important; }
+            #preview-view { display: block !important; padding: 0 !important; }
+            #sheet-paper {
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
             }
-            .bubble-row-print {
-                display: flex;
-                align-items: center;
-                border-bottom: 1px solid #ddd;
-                padding: 5px 0;
-            }
-            .bubble-circle-print {
-                width: 25px;
-                height: 25px;
-                border: 1px solid black;
-                border-radius: 50%;
-                margin: 0 5px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 12px;
-            }
+            /* Force Grid Layout for Print */
+            .print-grid { display: grid !important; grid-template-columns: 1fr 1fr; gap: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Animated Background -->
-    <div class="bg-gradient-mesh"></div>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-
-    <!-- Navbar -->
-    <nav id="navbar" class="fixed top-0 w-full z-50 glass-panel border-t-0 border-x-0 rounded-none px-4 py-3 md:px-6 md:py-4 flex justify-between items-center shadow-lg backdrop-blur-xl bg-slate-900/50">
-        <div class="flex items-center gap-2 md:gap-3">
-            <div class="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-tr from-primary to-secondary rounded-full flex items-center justify-center shadow-lg shadow-primary/50">
-                <i class="fa-solid fa-layer-group text-white text-sm md:text-base"></i>
-            </div>
-            <h1 class="text-base md:text-xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
-                Bubble Creator
-            </h1>
-        </div>
+    <div id="app-container">
         
-        <div class="flex gap-2">
-            <button onclick="switchMode('editor')" class="glass-btn px-3 py-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-white/10 flex items-center gap-2">
-                <i class="fa-solid fa-pen-to-square"></i> <span class="hidden sm:inline">المحرر</span>
-            </button>
-            <button onclick="switchMode('preview')" class="glass-btn px-3 py-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-white/10 flex items-center gap-2">
-                <i class="fa-solid fa-file-pdf"></i> <span class="hidden sm:inline">المعاينة</span>
-            </button>
-             <button onclick="switchMode('test')" class="glass-btn px-3 py-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-white/10 flex items-center gap-2">
-                <i class="fa-solid fa-play"></i> <span class="hidden sm:inline">اختبار</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Main Container -->
-    <main id="main-content" class="container mx-auto pt-20 md:pt-28 pb-20 px-3 md:px-4 relative z-10">
-
-        <!-- EDITOR MODE -->
-        <section id="editor-mode" class="fade-in">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                <!-- Left: Question Creator -->
-                <div class="lg:col-span-5 order-2 lg:order-1">
-                    <div class="glass-panel p-4 md:p-6 lg:sticky lg:top-28">
-                        <h2 class="text-lg md:text-xl font-bold mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-circle-plus text-secondary"></i>
-                            إنشاء سؤال جديد
-                        </h2>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm text-gray-300 mb-1">نص السؤال</label>
-                                <textarea id="q-text" rows="3" class="w-full glass-input rounded-xl p-3 text-right" placeholder="اكتب سؤالك هنا..."></textarea>
-                            </div>
-
-                            <div class="space-y-3" id="options-container">
-                                <label class="block text-sm text-gray-300">الخيارات (اختر الإجابة الصحيحة)</label>
-                                <!-- Option Loop -->
-                                <div class="flex items-center gap-2 md:gap-3">
-                                    <div class="bubble-option" onclick="selectCorrectAnswer(0)" id="bubble-0">A</div>
-                                    <input type="text" id="opt-0" class="flex-1 glass-input rounded-lg p-2 text-sm" placeholder="الخيار الأول">
-                                </div>
-                                <div class="flex items-center gap-2 md:gap-3">
-                                    <div class="bubble-option" onclick="selectCorrectAnswer(1)" id="bubble-1">B</div>
-                                    <input type="text" id="opt-1" class="flex-1 glass-input rounded-lg p-2 text-sm" placeholder="الخيار الثاني">
-                                </div>
-                                <div class="flex items-center gap-2 md:gap-3">
-                                    <div class="bubble-option" onclick="selectCorrectAnswer(2)" id="bubble-2">C</div>
-                                    <input type="text" id="opt-2" class="flex-1 glass-input rounded-lg p-2 text-sm" placeholder="الخيار الثالث">
-                                </div>
-                                <div class="flex items-center gap-2 md:gap-3">
-                                    <div class="bubble-option" onclick="selectCorrectAnswer(3)" id="bubble-3">D</div>
-                                    <input type="text" id="opt-3" class="flex-1 glass-input rounded-lg p-2 text-sm" placeholder="الخيار الرابع">
-                                </div>
-                            </div>
-
-                            <div class="pt-4 border-t border-glassBorder flex justify-between items-center">
-                                <span class="text-xs text-gray-400 hidden xs:inline" id="status-msg">جاهز للإضافة</span>
-                                <button onclick="addQuestion()" class="w-full xs:w-auto bg-gradient-to-r from-primary to-purple-600 hover:from-purple-600 hover:to-primary text-white px-6 py-3 md:py-2 rounded-xl shadow-lg shadow-purple-500/30 transition-all active:scale-95 font-bold">
-                                    <i class="fa-solid fa-plus ml-2"></i> إضافة
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right: Questions List -->
-                <div class="lg:col-span-7 order-1 lg:order-2">
-                    <div class="flex justify-between items-center mb-4 px-1">
-                        <h2 class="text-lg md:text-xl font-bold">الأسئلة (<span id="q-count">0</span>)</h2>
-                        <button onclick="clearAll()" class="glass-btn px-3 py-1 rounded-lg text-red-400 text-xs md:text-sm hover:text-red-300 hover:bg-red-500/10"><i class="fa-solid fa-trash"></i> حذف الكل</button>
-                    </div>
-
-                    <div id="questions-list" class="space-y-4 pb-10">
-                        <!-- Empty State -->
-                        <div id="empty-state" class="glass-panel p-8 md:p-10 text-center text-gray-400">
-                            <i class="fa-regular fa-clipboard text-3xl md:text-4xl mb-3 opacity-50"></i>
-                            <p class="text-sm md:text-base">لم تقم بإضافة أي أسئلة بعد.</p>
-                        </div>
-                    </div>
-                </div>
+        <!-- Header -->
+        <header id="app-header" class="px-6 py-5 flex justify-between items-center bg-surface/50 backdrop-blur-md sticky top-0 z-20 border-b border-white/5">
+            <div>
+                <h1 class="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Bubble Exam</h1>
+                <p class="text-xs text-gray-400">صمم، اطبع، اختبر</p>
             </div>
-        </section>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg">
+                <i class="fa-solid fa-graduation-cap text-white text-lg"></i>
+            </div>
+        </header>
 
-        <!-- PREVIEW / PRINT MODE -->
-        <section id="preview-mode" class="hidden fade-in">
-            <div class="max-w-4xl mx-auto">
-                <div class="glass-panel p-4 md:p-6 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 no-print">
-                    <div class="text-center sm:text-right">
-                        <h2 class="text-xl md:text-2xl font-bold">معاينة ورقة الإجابة</h2>
-                        <p class="text-gray-400 text-xs md:text-sm">اسحب لليمين/اليسار لرؤية الورقة كاملة</p>
+        <!-- Main Content Area (Scrollable) -->
+        <main class="flex-1 overflow-y-auto no-scrollbar relative p-4 pb-24" id="main-scroll">
+            
+            <!-- VIEW 1: EDITOR (المحرر) -->
+            <div id="editor-view" class="page-content active">
+                <!-- Add Question Form -->
+                <div class="bg-surface rounded-2xl p-4 mb-6 shadow-lg border border-white/5">
+                    <h2 class="text-sm font-bold text-gray-300 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle text-primary"></i> سؤال جديد
+                    </h2>
+                    
+                    <textarea id="q-text" rows="2" class="w-full input-box rounded-xl p-3 text-right mb-4 text-sm" placeholder="نص السؤال..."></textarea>
+                    
+                    <div class="space-y-3 mb-4">
+                        <!-- Option A -->
+                        <div class="flex items-center gap-2">
+                            <div class="bubble-btn text-sm" onclick="setCorrect(0)" id="btn-opt-0">A</div>
+                            <input type="text" id="input-opt-0" class="flex-1 input-box rounded-lg p-2 text-xs" placeholder="الخيار الأول">
+                        </div>
+                        <!-- Option B -->
+                        <div class="flex items-center gap-2">
+                            <div class="bubble-btn text-sm" onclick="setCorrect(1)" id="btn-opt-1">B</div>
+                            <input type="text" id="input-opt-1" class="flex-1 input-box rounded-lg p-2 text-xs" placeholder="الخيار الثاني">
+                        </div>
+                        <!-- Option C -->
+                        <div class="flex items-center gap-2">
+                            <div class="bubble-btn text-sm" onclick="setCorrect(2)" id="btn-opt-2">C</div>
+                            <input type="text" id="input-opt-2" class="flex-1 input-box rounded-lg p-2 text-xs" placeholder="الخيار الثالث">
+                        </div>
+                        <!-- Option D -->
+                        <div class="flex items-center gap-2">
+                            <div class="bubble-btn text-sm" onclick="setCorrect(3)" id="btn-opt-3">D</div>
+                            <input type="text" id="input-opt-3" class="flex-1 input-box rounded-lg p-2 text-xs" placeholder="الخيار الرابع">
+                        </div>
                     </div>
-                    <button onclick="window.print()" class="w-full sm:w-auto bg-secondary text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition-all font-bold active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-print"></i> <span>طباعة / PDF</span>
+
+                    <button onclick="addQuestion()" class="w-full bg-gradient-to-r from-primary to-indigo-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-save"></i> حفظ السؤال
                     </button>
                 </div>
 
-                <!-- Scrollable Container for Mobile -->
-                <div class="scroll-container rounded-sm">
-                    <!-- The Actual Sheet (Visual & Print) -->
-                    <div id="sheet-paper" class="bg-white text-black p-6 md:p-10 mx-auto min-h-[800px] relative shadow-2xl">
-                        
-                        <!-- Print Header -->
-                        <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-end">
-                            <div>
-                                <h1 class="text-2xl md:text-3xl font-bold uppercase tracking-widest text-black">ورقة الإجابة</h1>
-                                <p class="text-xs md:text-sm mt-2 text-gray-600">اسم الطالب: ......................................................</p>
-                            </div>
-                            <div class="text-right">
-                                <div class="border-2 border-black p-1 w-20 h-20 md:w-24 md:h-24 flex items-center justify-center mb-2 mx-auto md:mx-0">
-                                    <span class="text-gray-400 text-[10px] text-center">QR Code<br>Area</span>
-                                </div>
-                                <p class="font-bold text-xs md:text-sm">التاريخ: ..../..../2025</p>
-                            </div>
-                        </div>
+                <!-- Questions List Header -->
+                <div class="flex justify-between items-center mb-3 px-1">
+                    <h3 class="text-sm font-bold text-gray-400">الأسئلة المضافة (<span id="count-badge">0</span>)</h3>
+                    <button onclick="clearAll()" class="text-danger text-xs bg-danger/10 px-3 py-1 rounded-full"><i class="fa-solid fa-trash"></i> مسح</button>
+                </div>
 
-                        <!-- Instructions -->
-                        <div class="bg-gray-100 p-3 md:p-4 rounded mb-6 text-xs md:text-sm flex flex-col md:flex-row gap-2 md:gap-4">
-                            <div class="font-bold whitespace-nowrap">تنبيه هام:</div>
-                            <ul class="list-disc list-inside text-gray-700">
-                                <li>استخدم قلم رصاص أو حبر أزرق/أسود فقط.</li>
-                                <li>ظلل الدائرة بالكامل هكذا: <i class="fa-solid fa-circle text-black text-[10px]"></i>.</li>
-                            </ul>
-                        </div>
-
-                        <!-- Grid of Bubbles -->
-                        <div id="bubble-grid-preview" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 md:gap-x-12 gap-y-1">
-                            <!-- Dynamic Content Generated JS -->
-                        </div>
-                        
-                        <!-- Print Footer -->
-                        <div class="absolute bottom-4 left-0 w-full text-center text-[10px] text-gray-400">
-                            Generated by Bubble Exam Creator
-                        </div>
+                <!-- Dynamic List -->
+                <div id="questions-container" class="space-y-3">
+                    <div class="text-center py-10 text-gray-500 opacity-50">
+                        <i class="fa-regular fa-folder-open text-4xl mb-2"></i>
+                        <p class="text-xs">القائمة فارغة</p>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- TEST MODE (Interactive) -->
-        <section id="test-mode" class="hidden fade-in">
-            <div class="max-w-3xl mx-auto">
-                <!-- Timer & Controls -->
-                <div class="glass-panel p-3 md:p-4 mb-6 sticky top-20 md:top-24 z-40 flex justify-between items-center shadow-lg bg-slate-900/80 backdrop-blur-md">
-                    <div class="flex items-center gap-2 md:gap-3">
-                        <div class="text-xl md:text-2xl font-mono font-bold text-secondary" id="timer">00:00</div>
-                        <span class="text-[10px] md:text-xs text-gray-400">الوقت</span>
+            <!-- VIEW 2: SHEET PREVIEW (المعاينة) -->
+            <div id="preview-view" class="page-content">
+                <div class="bg-white text-black p-5 rounded-sm min-h-[500px] relative shadow-xl mx-auto max-w-[95%] no-print" id="sheet-paper">
+                    <!-- Header -->
+                    <div class="border-b-2 border-black pb-2 mb-4 flex justify-between items-end">
+                        <div>
+                            <h2 class="font-black text-xl uppercase tracking-widest">Answer Sheet</h2>
+                            <p class="text-[10px] text-gray-600 mt-1">Student Name: .................................</p>
+                        </div>
+                        <div class="border border-black w-14 h-14 flex items-center justify-center text-[8px] text-center text-gray-400">QR</div>
                     </div>
-                    <div class="flex gap-2">
-                         <button onclick="submitExam()" id="btn-submit" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-bold shadow-lg shadow-green-500/20 transition-all active:scale-95">
-                            <i class="fa-solid fa-check"></i> إنهاء
-                        </button>
-                        <button onclick="resetExam()" class="glass-btn px-3 py-1.5 rounded-lg text-xs">
-                            <i class="fa-solid fa-rotate-right"></i>
-                        </button>
+                    
+                    <!-- Grid -->
+                    <div id="sheet-grid" class="grid grid-cols-1 gap-x-8 gap-y-1">
+                        <!-- Populated via JS -->
                     </div>
+
+                    <div class="mt-8 text-center text-[8px] text-gray-400 border-t pt-2">Generated by Bubble Exam</div>
                 </div>
 
-                <!-- Questions Form -->
-                <div id="exam-questions-container" class="space-y-4 md:space-y-6 pb-12">
-                    <!-- Dynamic Interactive Questions -->
+                <!-- Print Action -->
+                <div class="fixed bottom-24 left-0 w-full px-6 flex justify-center no-print pointer-events-none">
+                    <button onclick="window.print()" class="pointer-events-auto bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl border border-gray-700 flex items-center gap-2 font-bold active:scale-90 transition-transform">
+                        <i class="fa-solid fa-print"></i> طباعة الورقة
+                    </button>
                 </div>
             </div>
-        </section>
 
-    </main>
+            <!-- VIEW 3: TEST (الاختبار) -->
+            <div id="test-view" class="page-content">
+                <div class="bg-surface/50 p-3 rounded-xl mb-4 flex justify-between items-center sticky top-0 backdrop-blur-md z-10 border border-white/5">
+                    <div class="text-xs text-gray-400">الوقت: <span id="timer" class="text-primary font-mono text-lg font-bold ml-1">00:00</span></div>
+                    <button id="btn-finish" onclick="finishExam()" class="bg-success text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-lg shadow-success/20">تسليم</button>
+                    <button id="btn-restart" onclick="restartExam()" class="bg-white/10 text-white px-4 py-1.5 rounded-lg text-xs font-bold hidden"><i class="fa-solid fa-rotate-right"></i></button>
+                </div>
 
-    <!-- Success Toast Notification -->
-    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 glass-panel px-6 py-3 rounded-full flex items-center gap-3 translate-y-32 opacity-0 transition-all duration-300 z-[100] w-[90%] md:w-auto justify-center shadow-2xl bg-black/80">
-        <i class="fa-solid fa-circle-check text-green-400 text-xl"></i>
-        <span id="toast-msg" class="text-sm font-medium">تمت العملية بنجاح</span>
+                <div id="test-container" class="space-y-4 pb-20">
+                     <div class="text-center py-10 text-gray-500 opacity-50">
+                        <i class="fa-solid fa-ban text-4xl mb-2"></i>
+                        <p class="text-xs">لا توجد أسئلة لبدء الاختبار</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation (App Style) -->
+        <nav id="bottom-nav" class="bg-surface/90 backdrop-blur-xl h-16 border-t border-white/5 flex justify-around items-center px-2 relative z-30 no-print">
+            <button onclick="switchTab('editor')" class="nav-tab active flex flex-col items-center justify-center w-full h-full" id="tab-editor">
+                <i class="fa-solid fa-pen-nib text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">المحرر</span>
+            </button>
+            <button onclick="switchTab('preview')" class="nav-tab flex flex-col items-center justify-center w-full h-full" id="tab-preview">
+                <i class="fa-solid fa-file-invoice text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">المعاينة</span>
+            </button>
+            <button onclick="switchTab('test')" class="nav-tab flex flex-col items-center justify-center w-full h-full" id="tab-test">
+                <i class="fa-solid fa-play text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">الاختبار</span>
+            </button>
+        </nav>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="absolute top-20 left-1/2 transform -translate-x-1/2 bg-gray-900/90 border border-white/10 text-white px-4 py-2 rounded-full text-xs flex items-center gap-2 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 translate-y-[-10px]">
+            <i class="fa-solid fa-check-circle text-success"></i>
+            <span id="toast-msg">تم بنجاح</span>
+        </div>
+
     </div>
 
     <script>
-        /* --- STATE MANAGEMENT --- */
+        // --- Data ---
         let questions = [];
-        let currentCorrect = -1; // Index 0-3
-        let examTimerInterval;
-        let secondsElapsed = 0;
-        let isExamActive = false;
+        let currentCorrect = -1;
+        let timerInterval;
+        let seconds = 0;
+        let isTesting = false;
 
-        /* --- EDITOR FUNCTIONS --- */
-
-        function selectCorrectAnswer(index) {
+        // --- Editor Logic ---
+        function setCorrect(index) {
             currentCorrect = index;
-            // Visual Update
+            // UI Update
             for(let i=0; i<4; i++) {
-                const el = document.getElementById(`bubble-${i}`);
+                const btn = document.getElementById(`btn-opt-${i}`);
                 if(i === index) {
-                    el.classList.add('selected');
-                    el.innerHTML = '<i class="fa-solid fa-check text-white"></i>';
+                    btn.classList.add('active');
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
                 } else {
-                    el.classList.remove('selected');
-                    el.innerHTML = String.fromCharCode(65 + i); // Return to A, B, C, D
+                    btn.classList.remove('active');
+                    btn.innerHTML = String.fromCharCode(65+i);
                 }
             }
         }
 
         function addQuestion() {
-            const text = document.getElementById('q-text').value.trim();
+            const txt = document.getElementById('q-text').value.trim();
             const opts = [
-                document.getElementById('opt-0').value.trim(),
-                document.getElementById('opt-1').value.trim(),
-                document.getElementById('opt-2').value.trim(),
-                document.getElementById('opt-3').value.trim()
+                document.getElementById('input-opt-0').value.trim(),
+                document.getElementById('input-opt-1').value.trim(),
+                document.getElementById('input-opt-2').value.trim(),
+                document.getElementById('input-opt-3').value.trim()
             ];
 
-            // Validation
-            if(!text) { showToast('الرجاء كتابة نص السؤال', true); return; }
-            if(opts.some(o => o === "")) { showToast('الرجاء ملء جميع الخيارات', true); return; }
-            if(currentCorrect === -1) { showToast('الرجاء تحديد الإجابة الصحيحة', true); return; }
-
-            const newQ = {
-                id: Date.now(),
-                text: text,
-                options: opts,
-                correct: currentCorrect
-            };
-
-            questions.push(newQ);
-            renderQuestionsList();
-            resetForm();
-            showToast('تمت إضافة السؤال بنجاح');
-            
-            // Update other views logic
-            renderPreviewSheet();
-        }
-
-        function resetForm() {
-            document.getElementById('q-text').value = '';
-            for(let i=0; i<4; i++) document.getElementById(`opt-${i}`).value = '';
-            currentCorrect = -1;
-            for(let i=0; i<4; i++) {
-                const el = document.getElementById(`bubble-${i}`);
-                el.classList.remove('selected');
-                el.innerHTML = String.fromCharCode(65 + i);
-            }
-        }
-
-        function renderQuestionsList() {
-            const container = document.getElementById('questions-list');
-            const countSpan = document.getElementById('q-count');
-            
-            countSpan.innerText = questions.length;
-
-            if(questions.length === 0) {
-                container.innerHTML = `
-                    <div class="glass-panel p-8 md:p-10 text-center text-gray-400 fade-in">
-                        <i class="fa-regular fa-clipboard text-3xl md:text-4xl mb-3 opacity-50"></i>
-                        <p class="text-sm md:text-base">لم تقم بإضافة أي أسئلة بعد.</p>
-                    </div>`;
+            if(!txt || opts.some(o => o === "") || currentCorrect === -1) {
+                showToast("يرجى إكمال جميع الحقول واختيار الإجابة", true);
                 return;
             }
 
-            let html = '';
-            questions.forEach((q, index) => {
-                const correctLetter = String.fromCharCode(65 + q.correct); // 0->A
-                html += `
-                <div class="glass-panel p-4 md:p-5 relative group fade-in mb-3" style="animation-delay: ${index * 0.05}s">
-                    <div class="absolute top-3 left-3 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-10">
-                        <button onclick="deleteQuestion(${q.id})" class="text-red-400 hover:text-red-100 bg-red-900/30 hover:bg-red-500 p-2 rounded-lg w-8 h-8 flex items-center justify-center transition-all shadow-sm border border-red-500/20">
-                            <i class="fa-solid fa-trash-can text-sm"></i>
-                        </button>
-                    </div>
-                    <div class="flex gap-3 md:gap-4">
-                        <div class="flex-shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-full bg-white/10 flex items-center justify-center font-bold text-xs md:text-sm mt-1">
-                            ${index + 1}
-                        </div>
-                        <div class="flex-1 min-w-0"> <!-- min-w-0 helps text truncation -->
-                            <h3 class="font-bold text-base md:text-lg mb-2 break-words text-white/90 leading-snug pl-8">${q.text}</h3>
-                            <div class="grid grid-cols-1 xs:grid-cols-2 gap-2 text-xs md:text-sm text-gray-300">
-                                ${q.options.map((opt, i) => `
-                                    <div class="truncate ${i === q.correct ? 'text-green-400 font-bold bg-green-500/10 rounded px-2 py-0.5' : 'px-2 py-0.5'}">
-                                        <span class="opacity-50 font-serif">${String.fromCharCode(65+i)}.</span> ${opt}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                `;
+            questions.push({
+                id: Date.now(),
+                text: txt,
+                options: opts,
+                correct: currentCorrect
             });
-            container.innerHTML = html;
+
+            // Reset
+            document.getElementById('q-text').value = "";
+            for(let i=0; i<4; i++) document.getElementById(`input-opt-${i}`).value = "";
+            currentCorrect = -1;
+            for(let i=0; i<4; i++) {
+                const b = document.getElementById(`btn-opt-${i}`);
+                b.classList.remove('active');
+                b.innerHTML = String.fromCharCode(65+i);
+            }
+
+            renderQuestions();
+            showToast("تم إضافة السؤال");
         }
 
-        function deleteQuestion(id) {
-            if(confirm('هل أنت متأكد من الحذف؟')) {
-                questions = questions.filter(q => q.id !== id);
-                renderQuestionsList();
-                renderPreviewSheet();
-                showToast('تم حذف السؤال');
+        function renderQuestions() {
+            // Update Editor List
+            const list = document.getElementById('questions-container');
+            document.getElementById('count-badge').innerText = questions.length;
+            
+            if(questions.length === 0) {
+                list.innerHTML = `<div class="text-center py-10 text-gray-500 opacity-50"><i class="fa-regular fa-folder-open text-4xl mb-2"></i><p class="text-xs">القائمة فارغة</p></div>`;
+            } else {
+                list.innerHTML = questions.map((q, idx) => `
+                    <div class="bg-surface p-3 rounded-xl border border-white/5 relative group">
+                        <div class="flex gap-3">
+                            <div class="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold mt-1">${idx+1}</div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium mb-2 text-gray-200">${q.text}</p>
+                                <div class="grid grid-cols-2 gap-1">
+                                    ${q.options.map((o, i) => `
+                                        <div class="text-[10px] px-2 py-1 rounded bg-black/20 text-gray-400 ${i===q.correct ? 'text-green-400 border border-green-500/30':''}">
+                                            <span class="font-bold">${String.fromCharCode(65+i)}.</span> ${o}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <button onclick="deleteQ(${q.id})" class="text-danger h-8 w-8 flex items-center justify-center bg-danger/5 rounded-lg"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        </div>
+                    </div>
+                `).join('');
             }
+
+            // Update Preview Sheet
+            updateSheet();
+        }
+
+        function deleteQ(id) {
+            questions = questions.filter(q => q.id !== id);
+            renderQuestions();
         }
 
         function clearAll() {
-            if(questions.length === 0) return;
-            if(confirm('هل أنت متأكد من حذف جميع الأسئلة؟')) {
+            if(questions.length > 0 && confirm("مسح الكل؟")) {
                 questions = [];
-                renderQuestionsList();
-                renderPreviewSheet();
+                renderQuestions();
             }
         }
 
-        /* --- PREVIEW MODE FUNCTIONS --- */
-
-        function renderPreviewSheet() {
-            const grid = document.getElementById('bubble-grid-preview');
+        // --- Sheet Logic ---
+        function updateSheet() {
+            const grid = document.getElementById('sheet-grid');
             if(questions.length === 0) {
-                grid.innerHTML = '<p class="text-center w-full col-span-2 py-10 text-gray-400">أضف أسئلة أولاً لإنشاء ورقة الإجابة</p>';
+                grid.innerHTML = '<div class="text-center text-xs text-gray-400 py-10 col-span-2">No questions yet</div>';
                 return;
             }
+            
+            // Adjust grid columns for print vs mobile view
+            // On screen we keep 1 col, print makes it 2 via CSS
+            grid.className = "grid grid-cols-1 md:grid-cols-1 print-grid gap-x-8 gap-y-1";
 
-            let html = '';
-            questions.forEach((q, index) => {
-                html += `
-                <div class="bubble-row-print flex items-center justify-between px-2 md:px-4 py-1.5 md:py-2 hover:bg-gray-50 text-xs md:text-sm">
-                    <span class="font-bold w-6 md:w-8 text-center">${index + 1}</span>
-                    <div class="flex gap-2 md:gap-3">
+            grid.innerHTML = questions.map((q, idx) => `
+                <div class="flex items-center justify-between border-b border-gray-200 py-1">
+                    <span class="font-bold text-xs w-6">${idx+1}</span>
+                    <div class="flex gap-3">
                         ${[0,1,2,3].map(i => `
-                            <div class="flex flex-col items-center gap-1">
-                                <div class="bubble-circle-print text-[10px] md:text-xs font-serif">${String.fromCharCode(65+i)}</div>
-                            </div>
+                            <div class="w-5 h-5 rounded-full border border-black flex items-center justify-center text-[8px] font-serif">${String.fromCharCode(65+i)}</div>
                         `).join('')}
                     </div>
-                </div>`;
-            });
-
-            grid.innerHTML = html;
+                </div>
+            `).join('');
         }
 
-        /* --- TEST MODE FUNCTIONS --- */
-
-        function startTest() {
-            const container = document.getElementById('exam-questions-container');
+        // --- Test Logic ---
+        function initTest() {
+            const container = document.getElementById('test-container');
             if(questions.length === 0) {
-                container.innerHTML = '<div class="text-center text-gray-400 py-10 glass-panel">قم بإنشاء الأسئلة في المحرر أولاً.</div>';
+                container.innerHTML = `<div class="text-center py-10 text-gray-500 opacity-50"><i class="fa-solid fa-ban text-4xl mb-2"></i><p class="text-xs">لا توجد أسئلة</p></div>`;
                 return;
             }
 
-            // Start Timer
-            clearInterval(examTimerInterval);
-            secondsElapsed = 0;
-            isExamActive = true;
-            document.getElementById('btn-submit').style.display = 'inline-flex';
-            updateTimerDisplay();
-            examTimerInterval = setInterval(() => {
-                secondsElapsed++;
-                updateTimerDisplay();
+            // Reset Timer
+            clearInterval(timerInterval);
+            seconds = 0;
+            document.getElementById('timer').innerText = "00:00";
+            timerInterval = setInterval(() => {
+                seconds++;
+                const m = Math.floor(seconds/60).toString().padStart(2,'0');
+                const s = (seconds%60).toString().padStart(2,'0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
             }, 1000);
+            
+            isTesting = true;
+            document.getElementById('btn-finish').style.display = 'block';
+            document.getElementById('btn-restart').style.display = 'none';
 
-            let html = '';
-            questions.forEach((q, index) => {
-                html += `
-                <div class="glass-panel p-4 md:p-6 mb-4" id="exam-card-${index}">
-                    <div class="flex justify-between mb-3">
-                        <span class="text-secondary font-bold text-sm">السؤال ${index+1}</span>
-                    </div>
-                    <h3 class="text-base md:text-lg font-bold mb-4 leading-relaxed">${q.text}</h3>
-                    <div class="space-y-2 md:space-y-3">
+            container.innerHTML = questions.map((q, idx) => `
+                <div class="bg-surface p-4 rounded-xl border border-white/5 test-card" id="card-${idx}">
+                    <h3 class="text-sm font-bold mb-3 flex gap-2">
+                        <span class="text-primary">Q${idx+1}.</span> ${q.text}
+                    </h3>
+                    <div class="space-y-2">
                         ${q.options.map((opt, i) => `
-                            <label class="flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 active:bg-white/20 cursor-pointer transition-all option-label" id="label-${index}-${i}">
-                                <div class="relative flex-shrink-0">
-                                    <input type="radio" name="q-${index}" value="${i}" class="peer sr-only" onchange="playClickSound()">
-                                    <div class="w-5 h-5 md:w-6 md:h-6 rounded-full border-2 border-gray-400 peer-checked:border-secondary peer-checked:bg-secondary transition-all"></div>
-                                </div>
-                                <span class="text-gray-200 text-sm md:text-base select-none">${opt}</span>
+                            <label class="flex items-center gap-3 bg-black/20 p-2.5 rounded-lg border border-transparent cursor-pointer transition-all hover:bg-black/40" id="lbl-${idx}-${i}">
+                                <input type="radio" name="q-${idx}" value="${i}" class="hidden peer">
+                                <div class="w-4 h-4 rounded-full border border-gray-500 peer-checked:bg-primary peer-checked:border-primary peer-checked:ring-2 peer-checked:ring-primary/50 transition-all"></div>
+                                <span class="text-xs text-gray-300 peer-checked:text-white">${opt}</span>
                             </label>
                         `).join('')}
                     </div>
-                    <div class="feedback-msg hidden mt-4 text-sm font-bold bg-black/20 p-3 rounded-lg"></div>
+                    <div class="mt-3 text-xs font-bold hidden result-msg"></div>
                 </div>
-                `;
-            });
-            container.innerHTML = html;
+            `).join('');
         }
 
-        function updateTimerDisplay() {
-            const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
-            const secs = (secondsElapsed % 60).toString().padStart(2, '0');
-            document.getElementById('timer').innerText = `${mins}:${secs}`;
-        }
-
-        function submitExam() {
-            if(!isExamActive) return;
-            isExamActive = false;
-            clearInterval(examTimerInterval);
-            document.getElementById('btn-submit').style.display = 'none';
+        function finishExam() {
+            if(!isTesting) return;
+            isTesting = false;
+            clearInterval(timerInterval);
+            
+            document.getElementById('btn-finish').style.display = 'none';
+            document.getElementById('btn-restart').style.display = 'block';
 
             let score = 0;
-            let firstUnanswered = null;
-
-            questions.forEach((q, index) => {
-                const selected = document.querySelector(`input[name="q-${index}"]:checked`);
-                const card = document.getElementById(`exam-card-${index}`);
-                const feedback = card.querySelector('.feedback-msg');
-                feedback.classList.remove('hidden');
+            questions.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="q-${idx}"]:checked`);
+                const card = document.getElementById(`card-${idx}`);
+                const msg = card.querySelector('.result-msg');
+                msg.classList.remove('hidden');
 
                 if(selected) {
                     const val = parseInt(selected.value);
                     if(val === q.correct) {
                         score++;
-                        card.style.borderColor = '#10b981'; // Green Border
-                        feedback.innerHTML = '<span class="text-green-400 flex items-center gap-2"><i class="fa-solid fa-check-circle"></i> إجابة صحيحة!</span>';
-                        document.getElementById(`label-${index}-${val}`).classList.add('bg-green-500/20', 'border-green-500/30');
+                        card.classList.add('border-green-500/50', 'bg-green-900/10');
+                        msg.innerHTML = `<span class="text-green-400">إجابة صحيحة!</span>`;
+                        document.getElementById(`lbl-${idx}-${val}`).classList.add('bg-green-500/20');
                     } else {
-                        card.style.borderColor = '#ef4444'; // Red Border
-                        feedback.innerHTML = `<span class="text-red-400 flex items-center gap-2"><i class="fa-solid fa-circle-xmark"></i> خطأ. الإجابة هي: ${q.options[q.correct]}</span>`;
-                        document.getElementById(`label-${index}-${val}`).classList.add('bg-red-500/20', 'border-red-500/30');
-                        // Highlight correct one
-                        document.getElementById(`label-${index}-${q.correct}`).classList.add('bg-green-500/10', 'border-green-500/50', 'ring-1', 'ring-green-500');
+                        card.classList.add('border-red-500/50', 'bg-red-900/10');
+                        msg.innerHTML = `<span class="text-red-400">خطأ، الإجابة هي (${String.fromCharCode(65+q.correct)})</span>`;
+                        document.getElementById(`lbl-${idx}-${val}`).classList.add('bg-red-500/20');
+                        document.getElementById(`lbl-${idx}-${q.correct}`).classList.add('bg-green-500/10', 'border-green-500/30');
                     }
                 } else {
-                    card.style.borderColor = '#eab308'; // Yellow
-                    feedback.innerHTML = `<span class="text-yellow-400 text-xs md:text-sm">لم تتم الإجابة. الصحيح هو: ${q.options[q.correct]}</span>`;
-                    if(!firstUnanswered) firstUnanswered = card;
+                    card.classList.add('border-yellow-500/50');
+                    msg.innerHTML = `<span class="text-yellow-400">لم تتم الإجابة</span>`;
+                    document.getElementById(`lbl-${idx}-${q.correct}`).classList.add('bg-green-500/10', 'border-green-500/30');
                 }
             });
-
-            const percent = Math.round((score / questions.length) * 100);
-            showToast(`النتيجة: ${score} من ${questions.length} (${percent}%)`);
             
-            // Scroll to top
-            document.getElementById('test-mode').scrollIntoView({ behavior: 'smooth' });
+            showToast(`النتيجة: ${score} من ${questions.length}`);
         }
 
-        function resetExam() {
-            if(confirm('هل تريد إعادة الاختبار؟')) {
-                startTest();
-            }
+        function restartExam() {
+            if(confirm("إعادة الاختبار؟")) initTest();
         }
 
-        /* --- UI UTILS --- */
 
-        function switchMode(mode) {
-            // Hide all
-            document.getElementById('editor-mode').classList.add('hidden');
-            document.getElementById('preview-mode').classList.add('hidden');
-            document.getElementById('test-mode').classList.add('hidden');
+        // --- Navigation ---
+        function switchTab(tabId) {
+            // Update Tab Icons
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
 
-            // Show selected
-            document.getElementById(`${mode}-mode`).classList.remove('hidden');
+            // Show Content
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            document.getElementById(`${tabId}-view`).classList.add('active');
 
             // Specific Init
-            if(mode === 'preview') renderPreviewSheet();
-            if(mode === 'test') startTest();
+            if(tabId === 'test') initTest();
         }
 
-        function showToast(msg, isError = false) {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-msg');
-            const icon = toast.querySelector('i');
+        // --- Utilities ---
+        function showToast(msg, isErr = false) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            t.querySelector('i').className = isErr ? 'fa-solid fa-triangle-exclamation text-danger' : 'fa-solid fa-check-circle text-success';
             
-            toastMsg.innerText = msg;
-            if(isError) {
-                icon.className = 'fa-solid fa-triangle-exclamation text-red-400 text-xl';
-            } else {
-                icon.className = 'fa-solid fa-circle-check text-green-400 text-xl';
-            }
-
-            toast.classList.remove('translate-y-32', 'opacity-0');
+            t.classList.remove('opacity-0', 'translate-y-[-10px]');
             setTimeout(() => {
-                toast.classList.add('translate-y-32', 'opacity-0');
+                t.classList.add('opacity-0', 'translate-y-[-10px]');
             }, 3000);
         }
-
-        function playClickSound() {
-            // Placeholder
-        }
-
-        // Init
-        renderQuestionsList();
 
     </script>
 </body>
